@@ -1,6 +1,8 @@
-# Padrón Electoral — Proyecto Programación G2
+# Padrón Electoral — Proyecto Programación III
 
 ## Integrantes
+
+Damian Herrera
 
 | Nombre | Parte |
 |--------|-------|
