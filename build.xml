@@ -1,73 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- You may freely edit this file. See commented blocks below for -->
-<!-- some examples of how to customize the build. -->
-<!-- (If you delete it and reopen the project it will be recreated.) -->
-<!-- By default, only the Clean and Build commands use this build script. -->
-<!-- Commands such as Run, Debug, and Test only use this build script if -->
-<!-- the Compile on Save feature is turned off for the project. -->
-<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
-<!-- in the project's Project Properties dialog box.-->
-<project name="Proyecto_PadronElectoral_Progra_G2" default="default" basedir=".">
-    <description>Builds, tests, and runs the project Proyecto_PadronElectoral_Progra_G2.</description>
-    <import file="nbproject/build-impl.xml"/>
-    <!--
+<project name="PadronElectoral" default="run" basedir=".">
 
-    There exist several targets which are by default empty and which can be 
-    used for execution of your tasks. These targets are usually executed 
-    before and after some main targets. They are: 
+    <!-- Propiedades del proyecto -->
+    <property name="src.dir"      value="src"/>
+    <property name="build.dir"    value="build"/>
+    <property name="classes.dir"  value="${build.dir}/classes"/>
+    <property name="jar.dir"      value="${build.dir}/jar"/>
+    <property name="lib.dir"      value="lib"/>
+    <property name="jar.file"     value="${jar.dir}/PadronElectoral.jar"/>
+    <property name="main.class"   value="padron.Main"/>
+    <property name="encoding"     value="UTF-8"/>
+    <property name="java.version" value="21"/>
 
-      -pre-init:                 called before initialization of project properties
-      -post-init:                called after initialization of project properties
-      -pre-compile:              called before javac compilation
-      -post-compile:             called after javac compilation
-      -pre-compile-single:       called before javac compilation of single file
-      -post-compile-single:      called after javac compilation of single file
-      -pre-compile-test:         called before javac compilation of JUnit tests
-      -post-compile-test:        called after javac compilation of JUnit tests
-      -pre-compile-test-single:  called before javac compilation of single JUnit test
-      -post-compile-test-single: called after javac compilation of single JUunit test
-      -pre-jar:                  called before JAR building
-      -post-jar:                 called after JAR building
-      -post-clean:               called after cleaning build products
+    <!-- Classpath -->
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="**/*.jar" erroronmissingdir="false"/>
+        <pathelement location="${classes.dir}"/>
+    </path>
 
-    (Targets beginning with '-' are not intended to be called on their own.)
+    <!-- Target: clean -->
+    <target name="clean" description="Eliminar archivos compilados">
+        <delete dir="${build.dir}"/>
+        <echo message="Directorio build eliminado."/>
+    </target>
 
-    Example of inserting an obfuscator after compilation could look like this:
+    <!-- Target: init -->
+    <target name="init" description="Crear directorios necesarios">
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${jar.dir}"/>
+        <echo message="Directorios creados."/>
+    </target>
 
-        <target name="-post-compile">
-            <obfuscate>
-                <fileset dir="${build.classes.dir}"/>
-            </obfuscate>
-        </target>
+    <!-- Target: compile -->
+    <target name="compile" depends="init" description="Compilar fuentes Java 21 con --enable-preview">
+        <javac srcdir="${src.dir}"
+               destdir="${classes.dir}"
+               encoding="${encoding}"
+               includeantruntime="false"
+               release="${java.version}"
+               fork="true">
+            <compilerarg value="--enable-preview"/>
+            <classpath refid="classpath"/>
+        </javac>
+        <echo message="Compilacion completada."/>
+    </target>
 
-    For list of available properties check the imported 
-    nbproject/build-impl.xml file. 
+    <!-- Target: jar -->
+    <target name="jar" depends="compile" description="Empaquetar en JAR ejecutable">
+        <jar destfile="${jar.file}" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+        </jar>
+        <echo message="JAR generado: ${jar.file}"/>
+    </target>
 
+    <!-- Target: run -->
+    <target name="run" depends="jar" description="Ejecutar la aplicacion">
+        <java jar="${jar.file}"
+              fork="true"
+              failonerror="true">
+            <jvmarg value="--enable-preview"/>
+        </java>
+    </target>
 
-    Another way to customize the build is by overriding existing main targets.
-    The targets of interest are: 
-
-      -init-macrodef-javac:     defines macro for javac compilation
-      -init-macrodef-junit:     defines macro for junit execution
-      -init-macrodef-debug:     defines macro for class debugging
-      -init-macrodef-java:      defines macro for class execution
-      -do-jar:                  JAR building
-      run:                      execution of project 
-      -javadoc-build:           Javadoc generation
-      test-report:              JUnit report generation
-
-    An example of overriding the target for project execution could look like this:
-
-        <target name="run" depends="Proyecto_PadronElectoral_Progra_G2-impl.jar">
-            <exec dir="bin" executable="launcher.exe">
-                <arg file="${dist.jar}"/>
-            </exec>
-        </target>
-
-    Notice that the overridden target depends on the jar target and not only on 
-    the compile target as the regular run target does. Again, for a list of available 
-    properties which you can use, check the target you are overriding in the
-    nbproject/build-impl.xml file. 
-
-    -->
 </project>
