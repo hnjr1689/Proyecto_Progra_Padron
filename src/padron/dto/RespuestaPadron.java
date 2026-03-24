@@ -13,12 +13,12 @@ import padron.entidades.Persona;
 public class RespuestaPadron {
 
     private final Persona persona;
-    private final String  error;
-    private final int     codigoHttp;
+    private final String error;
+    private final int codigoHttp;
 
     private RespuestaPadron(Persona persona, String error, int codigoHttp) {
-        this.persona    = persona;
-        this.error      = error;
+        this.persona = persona;
+        this.error = error;
         this.codigoHttp = codigoHttp;
     }
 
@@ -34,7 +34,7 @@ public class RespuestaPadron {
     /** Cédula no encontrada en el padrón (HTTP 404). */
     public static RespuestaPadron noEncontrada(String cedula) {
         return new RespuestaPadron(null,
-            "Persona no encontrada para la cédula: " + cedula, 404);
+                "Persona no encontrada para la cédula: " + cedula, 404);
     }
 
     /** Solicitud con formato o datos inválidos (HTTP 400). */
@@ -45,7 +45,7 @@ public class RespuestaPadron {
     /** Método HTTP no permitido (HTTP 405). */
     public static RespuestaPadron metodoNoPermitido() {
         return new RespuestaPadron(null,
-            "Método no permitido. Solo se admite GET.", 405);
+                "Método no permitido. Solo se admite GET.", 405);
     }
 
     /** Error interno del servidor (HTTP 500). */
@@ -57,11 +57,21 @@ public class RespuestaPadron {
     // Accesores
     // ---------------------------------------------------------------
 
-    public Persona getPersona()   { return persona; }
-    public String  getError()     { return error; }
-    public int     getCodigoHttp(){ return codigoHttp; }
+    public Persona getPersona() {
+        return persona;
+    }
 
-    public boolean esExitosa()    { return persona != null; }
+    public String getError() {
+        return error;
+    }
+
+    public int getCodigoHttp() {
+        return codigoHttp;
+    }
+
+    public boolean esExitosa() {
+        return persona != null;
+    }
 
     // ---------------------------------------------------------------
     // Serialización JSON mínima (sin dependencias externas)
@@ -73,35 +83,34 @@ public class RespuestaPadron {
             var p = persona;
             var d = p.getDireccion();
             return """
-                {
-                  "cedula": "%s",
-                  "nombre": "%s",
-                  "primerApellido": "%s",
-                  "segundoApellido": "%s",
-                  "provincia": "%s",
-                  "canton": "%s",
-                  "distrito": "%s"
-                }""".formatted(
+                    {
+                      "cedula": "%s",
+                      "nombre": "%s",
+                      "primerApellido": "%s",
+                      "segundoApellido": "%s",
+                      "provincia": "%s",
+                      "canton": "%s",
+                      "distrito": "%s"
+                    }""".formatted(
                     p.getCedula(),
                     p.getNombre(),
                     p.getPrimerApellido(),
                     p.getSegundoApellido(),
                     d != null ? d.getProvincia() : "",
-                    d != null ? d.getCanton()    : "",
-                    d != null ? d.getDistrito()  : ""
-            );
+                    d != null ? d.getCanton() : "",
+                    d != null ? d.getDistrito() : "");
         } else {
             return """
-                {
-                  "error": "%s",
-                  "codigo": %d
-                }""".formatted(error, codigoHttp);
+                    {
+                      "error": "%s",
+                      "codigo": %d
+                    }""".formatted(error, codigoHttp);
         }
     }
 
     @Override
     public String toString() {
         return "RespuestaPadron{codigo=" + codigoHttp +
-               (esExitosa() ? ", persona=" + persona : ", error='" + error + "'") + "}";
+                (esExitosa() ? ", persona=" + persona : ", error='" + error + "'") + "}";
     }
 }
