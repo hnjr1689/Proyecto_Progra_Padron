@@ -27,6 +27,14 @@ public class Direccion {
     public String getDistrito()           { return distrito; }
     public void   setDistrito(String v)   { this.distrito = v; }
 
+    /**
+     * Retorna la dirección completa en un solo String.
+     * @return provincia, canton y distrito concatenados.
+     */
+    public String getDireccionCompleta() {
+        return provincia + ", " + canton + ", " + distrito;
+    }
+
     @Override
     public String toString() {
         return provincia + ", " + canton + ", " + distrito;
