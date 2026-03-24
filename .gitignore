@@ -1,0 +1,18 @@
+# NetBeans
+nbproject/
+nbproject/private/
+
+# Archivos compilados
+*.class
+build/
+dist/
+
+# JAR
+*.jar
+!lib/*.jar
+
+# IDE
+manifest.mf
+*.iml
+.idea/
+.vscode/

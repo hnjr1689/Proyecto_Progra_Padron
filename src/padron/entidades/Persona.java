@@ -42,6 +42,14 @@ public class Persona {
         return nombre + " " + primerApellido + " " + segundoApellido;
     }
 
+    /**
+     * Valida si la cédula tiene un formato correcto.
+     * @return true si la cédula no es null y contiene entre 9 y 10 dígitos numéricos.
+     */
+    public boolean esCedulaValida() {
+        return cedula != null && cedula.matches("\\d{9,10}");
+    }
+
     @Override
     public String toString() {
         return "Persona{cedula='" + cedula + "', nombre='" + getNombreCompleto() + "'}";
