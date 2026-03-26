@@ -10,10 +10,14 @@ import java.util.Map;
 import padron.entidades.Direccion;
 
 /**
- * Carga el archivo distelec.txt en memoria y permite buscar
- * una direccion por medio de su codigo electoral
+ * Esta clase se encarga de cargar el archivo distelec.txt en memoria
+ * usando un mapa para que las busquedas sean rapidas
+ * Cada vez que se necesita una direccion se busca por su codigo electoral
+ * 
+ * @author Josue
  */
 public class RepositorioDistelec {
+
     private final Map<String, Direccion> mapa = new HashMap<>();
 
     public RepositorioDistelec(String rutaArchivo) {
@@ -47,9 +51,11 @@ public class RepositorioDistelec {
     }
 
     /**
-     * Busca una una direccion por medio de su codigo electoral
+     * Busca una direccion usando el codigo electoral como llave
+     * Si el codigo no existe en el mapa retorna null
      * 
-     * @return si la direccion es encontrada, o devuelve null si no existe
+     * @param codElec codigo electoral a buscar
+     * @return Direccion encontrada, o null si no existe
      */
     public Direccion buscarPorCodigo(String codElec) {
         if (codElec == null || codElec.isBlank())
@@ -58,11 +64,12 @@ public class RepositorioDistelec {
     }
 
     /**
-     * Retorna la cantidad de registros que fueron cargados de distelec.txt
-     * Devuelve el numero total de direcciones en memoria
+     * Devuelve la cantidad total de direcciones cargadas en memoria
+     * Util para verificar que el archivo se leyo correctamente
+     * 
+     * @return numero total de los registros cargados
      */
     public int totalRegistros() {
         return mapa.size();
     }
-
 }
