@@ -24,28 +24,31 @@ public class RepositorioPadron {
 
     /*
      * Valida que la cedula ingresada por la persona tenga entre 9 y 10 digitos
-     * como es el formato costarricense
+     * como es el formato costarricense, si no cumple retorna falso
      */
     private boolean esCedulaValida(String cedulaNorm) {
         return cedulaNorm.length() >= 9 && cedulaNorm.length() <= 10;
     }
 
     /**
-     * Busca una persona por cedula.
-     * Depura la cedula eliminando guiones y espacios existentes
-     * 
-     * @return a la persona con direccion incluida, o null si esta no se encuentra
+     * Busca una persona por cedula en el archivo PADRON.txt.
+     * Antes de buscar le quita a la cedula los guiones, espacios
+     * y cualquier caracter que no sea numero para evitar errores
+     *
+     * @return la persona con su direccion incluida, o null si no se encuentra
      */
     public Persona buscarPorCedula(String cedula) {
         if (cedula == null || cedula.isBlank())
             return null;
 
-        String cedulaNorm = cedula.replaceAll("[^0-9]", "");
+        // Le quitamos guiones, espacios y letras que pueda traer la cedula
+        String cedulaNorm = cedula.trim().replaceAll("[^0-9]", "").trim();
         if (cedulaNorm.isEmpty())
             return null;
 
+        // Si la cedula no tiene entre 9 y 10 digitos no tiene sentido buscarla
         if (!esCedulaValida(cedulaNorm)) {
-            System.err.println("Cedula con formato invalido: " + cedula);
+            System.err.println("Cedula invalida, debe tener entre 9 y 10 digitos: " + cedula);
             return null;
         }
 
@@ -62,6 +65,7 @@ public class RepositorioPadron {
                 if (partes.length < 5)
                     continue;
 
+                // Normalizamos la cedula del archivo igual que la que nos mandaron
                 String cedArchivo = partes[0].trim().replaceAll("[^0-9]", "");
 
                 if (cedArchivo.equals(cedulaNorm)) {
@@ -71,6 +75,7 @@ public class RepositorioPadron {
                     String apellido2 = partes[3].trim();
                     String codElec = partes[4].trim();
 
+                    // Buscamos la direccion en distelec usando el codigo electoral
                     Direccion dir = distelec.buscarPorCodigo(codElec);
                     return new Persona(cedula2, nombre, apellido1, apellido2, dir);
                 }
@@ -80,6 +85,7 @@ public class RepositorioPadron {
             System.err.println("Error leyendo PADRON.txt: " + e.getMessage());
         }
 
+        // Si no encontro nada retorna null
         return null;
     }
 }
