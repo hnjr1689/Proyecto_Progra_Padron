@@ -1,54 +1,54 @@
 package padron.logica;
 
 import padron.datos.RepositorioPadron;
-import padron.datos.RepositorioDistelec;
 import padron.dto.RespuestaPadron;
+import padron.dto.SolicitudPadron;
 import padron.entidades.Persona;
 
 /**
- * Servicio principal de negocio del padron electoral.
- * Recibe una cedula, consulta los repositorios y retorna
- * una RespuestaPadron lista para serializar.
- * @author Fabian
+ * Servicio principal de negocio.
+ * Orquesta la consulta al padrón validando y normalizando la cédula.
  */
 public class ServicioPadron {
 
-    private final RepositorioPadron repositorioPadron;
+    private final RepositorioPadron padron;
 
-    public ServicioPadron(RepositorioPadron repositorioPadron) {
-        this.repositorioPadron = repositorioPadron;
+    public ServicioPadron(RepositorioPadron padron) {
+        this.padron = padron;
     }
-
+    
     /**
-     * Atiende una consulta por cedula.
-     * Valida que la cedula no este vacia y que tenga numeros validos.
-     * @param cedula numero de cedula a buscar
-     * @return RespuestaPadron con los datos o con el error correspondiente
+     * Atiende una solicitud de consulta al padrón.
+     * Valida, normaliza la cédula y retorna la respuesta correspondiente.
      */
-    public RespuestaPadron atender(String cedula) {
+    public RespuestaPadron atender(SolicitudPadron solicitud) {
+        try {
+            if (solicitud == null)
+                return RespuestaPadron.solicitudInvalida("Solicitud nula.");
 
-        // Validar que la cedula no venga vacia
-        if (cedula == null || cedula.isBlank()) {
-            return RespuestaPadron.solicitudInvalida(
-                "La cedula no puede estar vacia.");
+            String cedula = solicitud.getCedula();
+            if (cedula == null || cedula.isBlank())
+                return RespuestaPadron.solicitudInvalida("Cédula vacía.");
+
+            // Normalizar: quitar todo lo que no sea número
+            String cedulaNorm = cedula.replaceAll("[^0-9]", "");
+            if (cedulaNorm.isEmpty())
+                return RespuestaPadron.solicitudInvalida("Cédula inválida.");
+
+            if (cedulaNorm.length() < 9 || cedulaNorm.length() > 10)
+                return RespuestaPadron.solicitudInvalida(
+                    "Cédula debe tener entre 9 y 10 dígitos.");
+
+            Persona persona = padron.buscarPorCedula(cedulaNorm);
+            if (persona == null)
+                return RespuestaPadron.noEncontrada(cedulaNorm);
+
+            return RespuestaPadron.exitosa(persona);
+
+        } catch (Exception e) {
+            return RespuestaPadron.errorInterno(e.getMessage());
         }
-
-        // Quitar guiones y espacios antes de buscar
-        String cedulaNorm = cedula.trim().replaceAll("[^0-9]", "");
-        if (cedulaNorm.isEmpty()) {
-            return RespuestaPadron.solicitudInvalida(
-                "La cedula no contiene numeros validos.");
-        }
-
-        // Buscar la persona en el padron
-        Persona persona = repositorioPadron.buscarPorCedula(cedulaNorm);
-
-        // Si no se encontro retornar error 404
-        if (persona == null) {
-            return RespuestaPadron.noEncontrada(cedula);
-        }
-
-        // Todo bien, retornar la persona encontrada
-        return RespuestaPadron.exitosa(persona);
     }
 }
+
+
