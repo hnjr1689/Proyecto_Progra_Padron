@@ -2,13 +2,11 @@ package padron.dto;
 
 /**
  * DTO que encapsula los datos de una solicitud de consulta al padrón.
- * <p>
- * Protocolo TCP esperado: {@code GET|<cedula>|<formato>}
- * Ejemplo: {@code GET|123456789|JSON}
+ * Protocolo TCP: GET|cedula|JSON  o  GET|cedula|XML
  */
 public class SolicitudPadron {
 
-    private final String       cedula;
+    private final String        cedula;
     private final FormatoSalida formato;
 
     public SolicitudPadron(String cedula, FormatoSalida formato) {
@@ -16,37 +14,24 @@ public class SolicitudPadron {
         this.formato = formato;
     }
 
-    /**
-     * Parsea una línea del protocolo TCP con el formato {@code GET|cedula|formato}.
-     *
-     * @param linea texto recibido del cliente
-     * @return SolicitudPadron construida a partir de la línea
-     * @throws IllegalArgumentException si la línea no cumple el protocolo
-     */
     public static SolicitudPadron parsear(String linea) {
-        if (linea == null || linea.isBlank()) {
+        if (linea == null || linea.isBlank())
             throw new IllegalArgumentException("La solicitud no puede estar vacía.");
-        }
 
         String[] partes = linea.trim().split("\\|");
-
-        if (partes.length != 3) {
+        if (partes.length != 3)
             throw new IllegalArgumentException(
-                "Formato inválido. Se esperaba GET|cedula|formato, se recibió: " + linea);
-        }
+                "Formato inválido. Se esperaba GET|cedula|formato.");
 
-        if (!"GET".equalsIgnoreCase(partes[0].trim())) {
+        if (!"GET".equalsIgnoreCase(partes[0].trim()))
             throw new IllegalArgumentException(
-                "Operación no soportada: '" + partes[0].trim() + "'. Solo se admite GET.");
-        }
+                "Operación no soportada: '" + partes[0].trim() + "'. Solo GET.");
 
         String cedula = partes[1].trim();
-        if (cedula.isEmpty()) {
+        if (cedula.isEmpty())
             throw new IllegalArgumentException("La cédula no puede estar vacía.");
-        }
 
         FormatoSalida formato = FormatoSalida.desde(partes[2].trim());
-
         return new SolicitudPadron(cedula, formato);
     }
 
