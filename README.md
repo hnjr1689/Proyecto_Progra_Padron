@@ -3,6 +3,7 @@
 ## Integrantes
 
 Damian Herrera
+Josue Hernandez Ayala
 
 | Nombre | Parte |
 |--------|-------|
