@@ -88,5 +88,4 @@ public class ManejadorCliente implements Runnable {
     }
 }
 
-```
-fix: mejorar mensaje de error en ServidorTCP
+
