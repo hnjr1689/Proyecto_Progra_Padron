@@ -5,10 +5,10 @@
 | Nombre | Parte |
 |--------|-------|
 | Damian Herrera | Dominio / Entidades / DTOs / Integración |
-| Josue Hernandez Ayala | Capa de Datos / Repositorios |
-| Adrian | Servidor TCP |
-| (integrante) | Servidor HTTP |
-| (integrante) | Lógica de Negocio / Serialización |
+| Josué Hernández Ayala | Capa de Datos / Repositorios |
+| Adrián Leitón | Servidor TCP |
+| Daniel Carillo | Servidor HTTP |
+| Fabián Pérez | Lógica de Negocio / Serialización |
 
 ---
 
