@@ -1,4 +1,4 @@
-padron.presentacion.tcp;
+package padron.presentacion.tcp;
 
 import padron.dto.FormatoSalida;
 import padron.dto.RespuestaPadron;
