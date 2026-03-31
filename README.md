@@ -3,7 +3,10 @@
 ## Integrantes
 
 Damian Herrera
-Josue Hernandez Ayala
+Josué Hernández Ayala
+Adrián Leitón
+Daniel Carillo
+Fabián Pérez
 
 | Nombre | Parte |
 |--------|-------|
