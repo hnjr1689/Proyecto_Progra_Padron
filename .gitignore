@@ -16,3 +16,6 @@ manifest.mf
 *.iml
 .idea/
 .vscode/
+
+# Datos grandes (descargar del TSE manualmente)
+datos/PADRON.txt
