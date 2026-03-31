@@ -2,11 +2,11 @@
 
 ## Integrantes
 
-Damian Herrera
-Josué Hernández Ayala
-Adrián Leitón
-Daniel Carillo
-Fabián Pérez
+Damian Herrera |
+Josué Hernández Ayala |
+Adrián Leitón |
+Daniel Carillo |
+Fabián Pérez 
 
 | Nombre | Parte |
 |--------|-------|
