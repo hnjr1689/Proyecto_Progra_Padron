@@ -34,7 +34,7 @@ public class RepositorioDistelec {
                 if (linea.isEmpty())
                     continue;
 
-                String[] partes = linea.split("\\|");
+                String[] partes = linea.split(",");
                 if (partes.length >= 4) {
                     String codElec = partes[0].trim();
                     String provincia = partes[1].trim();

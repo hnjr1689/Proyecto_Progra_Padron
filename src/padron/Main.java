@@ -2,18 +2,18 @@ package padron;
 
 import padron.datos.RepositorioDistelec;
 import padron.datos.RepositorioPadron;
+import padron.logica.ServicioPadron;
 import padron.presentacion.http.ServidorHTTP;
 import padron.presentacion.tcp.ServidorTCP;
 
 /**
- * Punto de entrada de la aplicación Padrón Electoral.
- *
- * Inicia ServidorHTTP en el puerto 8080 (hilo separado) y
- * ServidorTCP en el puerto 5000 (hilo principal).
+ * Punto de entrada de la aplicacion Padron Electoral.
+ * Inicia ServidorHTTP en el puerto 8080 (hilo separado daemon) y
+ * ServidorTCP en el puerto 5000 (hilo principal, bloqueante).
  *
  * Archivos de datos esperados en el directorio de trabajo:
- *   datos/PADRON.txt
- *   datos/distelec.txt
+ *   datos/PADRON.txt    -- descargar del TSE manualmente (no incluido en repo)
+ *   datos/distelec.txt  -- incluido en el repo
  */
 public class Main {
 
@@ -24,25 +24,22 @@ public class Main {
     private static final int PUERTO_TCP  = 5000;
 
     public static void main(String[] args) {
-        System.out.println("=== Padrón Electoral ===");
+        System.out.println("=== Padron Electoral ===");
 
-        // Carga de datos compartidos
-        System.out.println("Cargando datos desde: " + RUTA_DISTELEC);
+        System.out.println("Cargando distelec...");
         RepositorioDistelec distelec = new RepositorioDistelec(RUTA_DISTELEC);
 
-        System.out.println("Cargando datos desde: " + RUTA_PADRON);
+        System.out.println("Repositorio de padron listo: " + RUTA_PADRON);
         RepositorioPadron padron = new RepositorioPadron(RUTA_PADRON, distelec);
 
-        // ServidorHTTP arranca en un hilo separado (daemon)
-        ServidorHTTP servidorHttp = new ServidorHTTP(PUERTO_HTTP, padron);
+        ServicioPadron servicio = new ServicioPadron(padron);
+
+        ServidorHTTP servidorHttp = new ServidorHTTP(PUERTO_HTTP, servicio);
         Thread hiloHttp = new Thread(servidorHttp, "hilo-http");
         hiloHttp.setDaemon(true);
         hiloHttp.start();
-        System.out.println("ServidorHTTP escuchando en puerto " + PUERTO_HTTP);
 
-        // ServidorTCP corre en el hilo principal
-        System.out.println("ServidorTCP escuchando en puerto " + PUERTO_TCP);
-        ServidorTCP servidorTcp = new ServidorTCP(PUERTO_TCP, padron);
+        ServidorTCP servidorTcp = new ServidorTCP(PUERTO_TCP, servicio);
         servidorTcp.iniciar();
     }
 }

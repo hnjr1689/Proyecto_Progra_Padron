@@ -1,35 +1,40 @@
 package padron.presentacion.http;
 
-import padron.logica.ServicioPadron;
-import com.sun.net.httpserver.HttpServer;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
+import com.sun.net.httpserver.HttpServer;
+
+import padron.logica.ServicioPadron;
+
 /**
- * Servidor HTTP para consultas al padrón electoral.
- * Puerto: 8080
- *
- * Endpoints soportados:
- *   GET /padron?cedula=XXX&format=json|xml
+ * Servidor HTTP para consultas al padron electoral.
+ * Endpoints:
  *   GET /padron/{cedula}?format=json|xml
+ *   GET /padron?cedula={cedula}&format=json|xml
  */
-public class ServidorHTTP {
+public class ServidorHTTP implements Runnable {
 
-    private static final int PUERTO = 8080;
+    private static final int EXECUTOR_SIZE = 10;
 
-    /**
-     * Inicia el servidor HTTP con executor de hilos.
-     */
-    public static void iniciar(ServicioPadron servicio) {
+    private final int            puerto;
+    private final ServicioPadron servicio;
+
+    public ServidorHTTP(int puerto, ServicioPadron servicio) {
+        this.puerto   = puerto;
+        this.servicio = servicio;
+    }
+
+    @Override
+    public void run() {
         try {
             HttpServer server = HttpServer.create(
-                new InetSocketAddress(PUERTO), 0);
+                new InetSocketAddress(puerto), 0);
             server.createContext("/padron", new ManejadorHTTP(servicio));
-            server.setExecutor(Executors.newFixedThreadPool(10));
+            server.setExecutor(Executors.newFixedThreadPool(EXECUTOR_SIZE));
             server.start();
-            System.out.println("Servidor HTTP escuchando en puerto " + PUERTO);
+            System.out.println("Servidor HTTP escuchando en puerto " + puerto);
         } catch (IOException e) {
             System.err.println("Error iniciando servidor HTTP: " + e.getMessage());
         }

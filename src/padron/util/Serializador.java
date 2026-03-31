@@ -6,98 +6,99 @@ import padron.entidades.Direccion;
 import padron.entidades.Persona;
 
 /**
- * Convierte una RespuestaPadron a JSON o XML
- * según el formato solicitado por el cliente.
+ * Utilidad de serialización.
+ * Convierte un RespuestaPadron a texto JSON o XML sin dependencias externas.
  */
 public class Serializador {
 
+    private Serializador() {}
+
     /**
-     * Serializa la respuesta al formato indicado.
+     * Serializa la respuesta al formato solicitado.
+     *
+     * @param respuesta resultado de la consulta
+     * @param formato   JSON o XML
+     * @return texto listo para enviar al cliente
      */
-    public static String serializar(RespuestaPadron respuesta,
-                                    FormatoSalida formato) {
+    public static String serializar(RespuestaPadron respuesta, FormatoSalida formato) {
         return switch (formato) {
             case JSON -> toJson(respuesta);
             case XML  -> toXml(respuesta);
         };
     }
 
-    private static String toJson(RespuestaPadron r) {
-        if (r.esExitosa()) {
-            Persona   p = r.getPersona();
+    // ---------------------------------------------------------------
+    // JSON
+    // ---------------------------------------------------------------
+
+    public static String toJson(RespuestaPadron respuesta) {
+        if (respuesta.esExitosa()) {
+            Persona p = respuesta.getPersona();
             Direccion d = p.getDireccion();
-            return """
-                {
-                  "cedula": "%s",
-                  "nombre": "%s",
-                  "primerApellido": "%s",
-                  "segundoApellido": "%s",
-                  "provincia": "%s",
-                  "canton": "%s",
-                  "distrito": "%s"
-                }""".formatted(
-                    p.getCedula(),
-                    p.getNombre(),
-                    p.getPrimerApellido(),
-                    p.getSegundoApellido(),
-                    d != null ? d.getProvincia() : "",
-                    d != null ? d.getCanton()    : "",
-                    d != null ? d.getDistrito()  : "");
+            return "{\n"
+                + "  \"cedula\": \""         + esc(p.getCedula())                        + "\",\n"
+                + "  \"nombre\": \""          + esc(p.getNombre())                        + "\",\n"
+                + "  \"primerApellido\": \""  + esc(p.getPrimerApellido())                + "\",\n"
+                + "  \"segundoApellido\": \"" + esc(p.getSegundoApellido())               + "\",\n"
+                + "  \"provincia\": \""       + esc(d != null ? d.getProvincia() : "")   + "\",\n"
+                + "  \"canton\": \""          + esc(d != null ? d.getCanton()    : "")   + "\",\n"
+                + "  \"distrito\": \""        + esc(d != null ? d.getDistrito()  : "")   + "\"\n"
+                + "}";
         } else {
-            return """
-                {
-                  "error": "%s",
-                  "codigo": %d
-                }""".formatted(escaparJson(r.getError()), r.getCodigoHttp());
+            return "{\n"
+                + "  \"error\": \"" + esc(respuesta.getError()) + "\",\n"
+                + "  \"codigo\": "  + respuesta.getCodigoHttp() + "\n"
+                + "}";
         }
     }
 
-    private static String toXml(RespuestaPadron r) {
-        if (r.esExitosa()) {
-            Persona   p = r.getPersona();
+    // ---------------------------------------------------------------
+    // XML
+    // ---------------------------------------------------------------
+
+    public static String toXml(RespuestaPadron respuesta) {
+        if (respuesta.esExitosa()) {
+            Persona p = respuesta.getPersona();
             Direccion d = p.getDireccion();
-            return """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <persona>
-                  <cedula>%s</cedula>
-                  <nombre>%s</nombre>
-                  <primerApellido>%s</primerApellido>
-                  <segundoApellido>%s</segundoApellido>
-                  <provincia>%s</provincia>
-                  <canton>%s</canton>
-                  <distrito>%s</distrito>
-                </persona>""".formatted(
-                    escaparXml(p.getCedula()),
-                    escaparXml(p.getNombre()),
-                    escaparXml(p.getPrimerApellido()),
-                    escaparXml(p.getSegundoApellido()),
-                    d != null ? escaparXml(d.getProvincia()) : "",
-                    d != null ? escaparXml(d.getCanton())    : "",
-                    d != null ? escaparXml(d.getDistrito())  : "");
+            return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<persona>\n"
+                + "  <cedula>"         + xml(p.getCedula())                        + "</cedula>\n"
+                + "  <nombre>"          + xml(p.getNombre())                        + "</nombre>\n"
+                + "  <primerApellido>"  + xml(p.getPrimerApellido())                + "</primerApellido>\n"
+                + "  <segundoApellido>" + xml(p.getSegundoApellido())               + "</segundoApellido>\n"
+                + "  <provincia>"       + xml(d != null ? d.getProvincia() : "")   + "</provincia>\n"
+                + "  <canton>"          + xml(d != null ? d.getCanton()    : "")   + "</canton>\n"
+                + "  <distrito>"        + xml(d != null ? d.getDistrito()  : "")   + "</distrito>\n"
+                + "</persona>";
         } else {
-            return """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <error>
-                  <mensaje>%s</mensaje>
-                  <codigo>%d</codigo>
-                </error>""".formatted(escaparXml(r.getError()), r.getCodigoHttp());
+            return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<error>\n"
+                + "  <mensaje>" + xml(respuesta.getError())              + "</mensaje>\n"
+                + "  <codigo>"  + respuesta.getCodigoHttp()              + "</codigo>\n"
+                + "</error>";
         }
     }
 
-    private static String escaparXml(String texto) {
-        if (texto == null) return "";
-        return texto.replace("&",  "&amp;")
-                    .replace("<",  "&lt;")
-                    .replace(">",  "&gt;")
-                    .replace("\"", "&quot;")
-                    .replace("'",  "&apos;");
+    // ---------------------------------------------------------------
+    // Helpers de escape
+    // ---------------------------------------------------------------
+
+    /** Escapa caracteres especiales para valores JSON. */
+    private static String esc(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
     }
 
-    private static String escaparJson(String texto) {
-        if (texto == null) return "";
-        return texto.replace("\\", "\\\\")
-                    .replace("\"", "\\\"");
+    /** Escapa caracteres especiales para contenido XML. */
+    private static String xml(String s) {
+        if (s == null) return "";
+        return s.replace("&",  "&amp;")
+                .replace("<",  "&lt;")
+                .replace(">",  "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'",  "&apos;");
     }
 }
-
-                
