@@ -2,16 +2,13 @@
 
 ## Integrantes
 
-Damian Herrera
-Josue Hernandez Ayala
-
 | Nombre | Parte |
 |--------|-------|
-|        | Dominio / Entidades |
-|        | Capa de Datos |
-|        | Lógica de Negocio |
-|        | Servidor TCP |
-|        | Servidor HTTP |
+| Damian Herrera | Dominio / Entidades / DTOs / Integración |
+| Josue Hernandez Ayala | Capa de Datos / Repositorios |
+| Adrian | Servidor TCP |
+| (integrante) | Servidor HTTP |
+| (integrante) | Lógica de Negocio / Serialización |
 
 ---
 
@@ -20,24 +17,40 @@ Josue Hernandez Ayala
 ```
 Proyecto_Progra_Padron/
 ├── build.xml
+├── datos/
+│   ├── distelec.txt        ← incluido en el repo
+│   └── PADRON.txt          ← descargar del TSE manualmente
 ├── lib/
 ├── src/
 │   └── padron/
 │       ├── Main.java
-│       ├── dto/
 │       ├── entidades/
+│       │   ├── Persona.java
+│       │   └── Direccion.java
+│       ├── dto/
+│       │   ├── FormatoSalida.java
+│       │   ├── SolicitudPadron.java
+│       │   └── RespuestaPadron.java
 │       ├── datos/
+│       │   ├── RepositorioDistelec.java
+│       │   └── RepositorioPadron.java
 │       ├── logica/
+│       │   └── ServicioPadron.java
 │       ├── presentacion/
 │       │   ├── tcp/
+│       │   │   ├── ServidorTCP.java
+│       │   │   └── ManejadorCliente.java
 │       │   └── http/
+│       │       ├── ServidorHTTP.java
+│       │       └── ManejadorHTTP.java
 │       └── util/
+│           └── Serializador.java
 └── README.md
 ```
 
 ---
 
-## Compilación con Ant
+## Compilación y ejecución con Ant
 
 ### Requisitos
 - Java 21
@@ -46,7 +59,7 @@ Proyecto_Progra_Padron/
 ### Archivos de datos (descarga manual)
 
 `PADRON.txt` no está incluido en el repositorio por su tamaño (≈430 MB).
-Antes de ejecutar el proyecto, descárgalo del TSE y colócalo así:
+Descárgalo del TSE y colócalo en la carpeta `datos/`:
 
 ```
 datos/PADRON.txt      ← descargar del TSE manualmente
@@ -65,11 +78,18 @@ ant compile
 # Generar JAR
 ant jar
 
-# Compilar y ejecutar
+# Compilar y ejecutar (inicia ambos servidores)
 ant run
 ```
 
-> La compilación usa `--enable-preview` para habilitar características de vista previa de Java 21.
+> Nota: en Windows con PowerShell, si `ant` no está en el PATH, usar la ruta completa:
+> ```powershell
+> & "C:\Users\<usuario>\.vscode\extensions\oracle.oracle-java-25.0.1\nbcode\extide\ant\bin\ant.bat" run
+> ```
+
+Una vez iniciado, el sistema queda escuchando en:
+- **TCP:** `localhost:5000`
+- **HTTP:** `localhost:8080`
 
 ---
 
@@ -78,36 +98,81 @@ ant run
 ### Formato de petición
 
 ```
-GET|cedula|JSON
+GET|cedula|formato
 ```
 
-- `GET` — operación solicitada
-- `cedula` — número de cédula a consultar
-- `JSON` — formato de respuesta esperado
+| Campo | Valores válidos | Descripción |
+|-------|----------------|-------------|
+| `GET` | `GET` | Operación de consulta |
+| `cedula` | 9-10 dígitos | Cédula costarricense (acepta guiones/espacios) |
+| `formato` | `JSON` / `XML` | Formato de respuesta |
 
-### Ejemplos
-
-**Petición:**
+Para cerrar la sesión:
 ```
-GET|123456789|JSON
+BYE
 ```
 
-**Respuesta exitosa:**
+### Ejemplos TCP
+
+**Consulta exitosa — JSON:**
+```
+GET|101053316|JSON
+```
 ```json
 {
-  "cedula": "123456789",
-  "nombre": "Juan Pérez",
-  "provincia": "San José",
-  "canton": "Central"
+  "cedula": "101053316",
+  "nombre": "LUCILA",
+  "primerApellido": "PORRAS",
+  "segundoApellido": "AGUERO",
+  "provincia": "SAN JOSE",
+  "canton": "PURISCAL",
+  "distrito": "GRIFO ALTO"
 }
 ```
 
-**Respuesta — no encontrado:**
+**Consulta exitosa — XML:**
+```
+GET|101053316|XML
+```
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<persona>
+  <cedula>101053316</cedula>
+  <nombre>LUCILA</nombre>
+  <primerApellido>PORRAS</primerApellido>
+  <segundoApellido>AGUERO</segundoApellido>
+  <provincia>SAN JOSE</provincia>
+  <canton>PURISCAL</canton>
+  <distrito>GRIFO ALTO</distrito>
+</persona>
+```
+
+**Cédula no encontrada:**
+```
+GET|000000000|JSON
+```
 ```json
 {
-  "error": "Persona no encontrada",
-  "cedula": "123456789"
+  "error": "Persona no encontrada para la cédula: 000000000",
+  "codigo": 404
 }
+```
+
+**Formato inválido:**
+```
+GET|101053316|CSV
+```
+```json
+{
+  "error": "Formato desconocido: 'CSV'. Use JSON o XML.",
+  "codigo": 400
+}
+```
+
+**Cerrar sesión:**
+```
+BYE
+→ ADIOS
 ```
 
 ---
@@ -116,25 +181,55 @@ GET|123456789|JSON
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| `GET` | `/padron/{cedula}` | Consultar persona por cédula |
+| `GET` | `/padron/{cedula}?format=json\|xml` | Consulta por cédula en path |
+| `GET` | `/padron?cedula={cedula}&format=json\|xml` | Consulta por query param |
 
-### Ejemplo de petición
+### Ejemplos HTTP
 
+**JSON por path variable:**
 ```
-GET /padron/123456789 HTTP/1.1
-Host: localhost:8080
+GET http://localhost:8080/padron/101053316?format=json
 ```
-
-### Ejemplo de respuesta
-
 ```json
 {
-  "cedula": "123456789",
-  "nombre": "Juan Pérez",
-  "provincia": "San José",
-  "canton": "Central"
+  "cedula": "101053316",
+  "nombre": "LUCILA",
+  "primerApellido": "PORRAS",
+  "segundoApellido": "AGUERO",
+  "provincia": "SAN JOSE",
+  "canton": "PURISCAL",
+  "distrito": "GRIFO ALTO"
 }
 ```
+
+**XML por path variable:**
+```
+GET http://localhost:8080/padron/101053316?format=xml
+```
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<persona>
+  <cedula>101053316</cedula>
+  <nombre>LUCILA</nombre>
+  <primerApellido>PORRAS</primerApellido>
+  <segundoApellido>AGUERO</segundoApellido>
+  <provincia>SAN JOSE</provincia>
+  <canton>PURISCAL</canton>
+  <distrito>GRIFO ALTO</distrito>
+</persona>
+```
+
+**JSON por query param:**
+```
+GET http://localhost:8080/padron?cedula=101053316&format=json
+```
+*(respuesta idéntica al ejemplo anterior)*
+
+**Cédula con guiones (normalización automática):**
+```
+GET http://localhost:8080/padron/1-0105-3316?format=json
+```
+*(retorna el mismo resultado — los guiones se ignoran)*
 
 ---
 
@@ -143,7 +238,33 @@ Host: localhost:8080
 | Código | Significado | Cuándo se usa |
 |--------|-------------|---------------|
 | `200` | OK | Consulta exitosa, persona encontrada |
-| `400` | Bad Request | Cédula con formato inválido |
+| `400` | Bad Request | Cédula vacía o formato inválido |
 | `404` | Not Found | Cédula no existe en el padrón |
-| `405` | Method Not Allowed | Se usó un método HTTP distinto a GET |
+| `405` | Method Not Allowed | Se usó un método distinto a GET |
 | `500` | Internal Server Error | Error inesperado en el servidor |
+
+### Ejemplos de error HTTP
+
+**400 — sin cédula:**
+```
+GET http://localhost:8080/padron?format=json
+```
+```json
+{ "error": "Cedula vacia.", "codigo": 400 }
+```
+
+**404 — no encontrada:**
+```
+GET http://localhost:8080/padron/000000000?format=json
+```
+```json
+{ "error": "Persona no encontrada para la cédula: 000000000", "codigo": 404 }
+```
+
+**405 — método no permitido:**
+```
+POST http://localhost:8080/padron/101053316
+```
+```json
+{ "error": "Método no permitido. Solo se admite GET.", "codigo": 405 }
+```
