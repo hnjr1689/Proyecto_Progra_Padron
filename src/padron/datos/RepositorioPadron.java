@@ -61,19 +61,20 @@ public class RepositorioPadron {
                 if (linea.isEmpty())
                     continue;
 
-                String[] partes = linea.split("\\|");
-                if (partes.length < 5)
+                // PADRON.txt: cedula,codElec,_,fecha,_,nombre,apellido1,apellido2
+                String[] partes = linea.split(",");
+                if (partes.length < 8)
                     continue;
 
                 // Normalizamos la cedula del archivo igual que la que nos mandaron
                 String cedArchivo = partes[0].trim().replaceAll("[^0-9]", "");
 
                 if (cedArchivo.equals(cedulaNorm)) {
-                    String cedula2 = partes[0].trim();
-                    String nombre = partes[1].trim();
-                    String apellido1 = partes[2].trim();
-                    String apellido2 = partes[3].trim();
-                    String codElec = partes[4].trim();
+                    String cedula2   = partes[0].trim();
+                    String codElec   = partes[1].trim();
+                    String nombre    = partes[5].trim();
+                    String apellido1 = partes[6].trim();
+                    String apellido2 = partes[7].trim();
 
                     // Buscamos la direccion en distelec usando el codigo electoral
                     Direccion dir = distelec.buscarPorCodigo(codElec);

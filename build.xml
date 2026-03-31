@@ -10,7 +10,7 @@
     <property name="jar.file"     value="${jar.dir}/PadronElectoral.jar"/>
     <property name="main.class"   value="padron.Main"/>
     <property name="encoding"     value="UTF-8"/>
-    <property name="java.version" value="21"/>
+    <property name="java.release" value="21"/>
 
     <!-- Classpath -->
     <path id="classpath">
@@ -37,7 +37,7 @@
                destdir="${classes.dir}"
                encoding="${encoding}"
                includeantruntime="false"
-               release="${java.version}"
+               release="${java.release}"
                fork="true">
             <compilerarg value="--enable-preview"/>
             <classpath refid="classpath"/>
