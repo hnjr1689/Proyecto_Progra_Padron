@@ -42,6 +42,16 @@ Proyecto_Progra_Padron/
 - Java 21
 - Apache Ant
 
+### Archivos de datos (descarga manual)
+
+`PADRON.txt` no está incluido en el repositorio por su tamaño (≈430 MB).
+Antes de ejecutar el proyecto, descárgalo del TSE y colócalo así:
+
+```
+datos/PADRON.txt      ← descargar del TSE manualmente
+datos/distelec.txt    ← ya incluido en el repo
+```
+
 ### Comandos
 
 ```bash
