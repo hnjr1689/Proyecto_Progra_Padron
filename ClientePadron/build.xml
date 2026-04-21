@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ClientePadron" default="run" basedir=".">
+
+    <property name="src.dir"      value="src"/>
+    <property name="build.dir"    value="build"/>
+    <property name="classes.dir"  value="${build.dir}/classes"/>
+    <property name="jar.dir"      value="${build.dir}/jar"/>
+    <property name="jar.file"     value="${jar.dir}/ClientePadron.jar"/>
+    <property name="main.class"   value="cliente.Main"/>
+    <property name="encoding"     value="UTF-8"/>
+    <property name="java.release" value="23"/>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <echo message="Limpieza completada."/>
+    </target>
+
+    <target name="init">
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${jar.dir}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src.dir}"
+               destdir="${classes.dir}"
+               encoding="${encoding}"
+               includeantruntime="false"
+               release="${java.release}"
+               fork="true">
+            <compilerarg value="--enable-preview"/>
+        </javac>
+        <echo message="Compilación completada."/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="${jar.file}" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+            </manifest>
+        </jar>
+        <echo message="JAR generado: ${jar.file}"/>
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${jar.file}" fork="true" failonerror="true">
+            <jvmarg value="--enable-preview"/>
+        </java>
+    </target>
+
+</project>

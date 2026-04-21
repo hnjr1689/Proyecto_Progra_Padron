@@ -59,22 +59,49 @@ public class ManejadorCliente implements Runnable {
 
     /*
      * Procesa una linea del protocolo TCP y retorna la respuesta
-     * en el formato que pidio el cliente
+     * compactada en una sola linea para que los clientes puedan
+     * leerla con un unico readLine().
      */
     private String procesar(String linea) {
+        // Validacion estructural del protocolo ANTES de intentar parsear.
+        // El formato obligatorio es exactamente tres campos separados por '|'.
+        String[] partes = linea.split("\\|", -1);
+        if (partes.length != 3) {
+            return compactar(Serializador.serializar(
+                RespuestaPadron.solicitudInvalida(
+                    "Formato TCP invalido. Se esperaba: GET|cedula|JSON o GET|cedula|XML"),
+                FormatoSalida.JSON));
+        }
+        if (!"GET".equalsIgnoreCase(partes[0].trim())) {
+            return compactar(Serializador.serializar(
+                RespuestaPadron.solicitudInvalida(
+                    "Operacion no soportada: '" + partes[0].trim()
+                    + "'. Solo se admite GET."),
+                FormatoSalida.JSON));
+        }
+
         try {
             SolicitudPadron solicitud = SolicitudPadron.parsear(linea);
             RespuestaPadron respuesta = servicio.atender(solicitud);
-            return Serializador.serializar(respuesta, solicitud.getFormato());
+            return compactar(Serializador.serializar(respuesta, solicitud.getFormato()));
         } catch (IllegalArgumentException e) {
-            return Serializador.serializar(
+            return compactar(Serializador.serializar(
                 RespuestaPadron.solicitudInvalida(e.getMessage()),
-                detectarFormato(linea));
+                detectarFormato(linea)));
         } catch (Exception e) {
-            return Serializador.serializar(
+            return compactar(Serializador.serializar(
                 RespuestaPadron.errorInterno(e.getMessage()),
-                FormatoSalida.JSON);
+                FormatoSalida.JSON));
         }
+    }
+
+    /**
+     * Convierte la respuesta a una sola linea eliminando saltos de linea
+     * y espacios redundantes. Necesario para el protocolo TCP donde cada
+     * respuesta debe ocupar exactamente una linea (terminada en \n).
+     */
+    private static String compactar(String texto) {
+        return texto.replaceAll("[ \t]*\\r?\\n[ \t]*", " ").trim();
     }
 
     /**

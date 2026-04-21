@@ -50,11 +50,11 @@ Proyecto_Progra_Padron/
 
 ---
 
-## Compilación y ejecución con Ant
+## Compilación y ejecución
 
 ### Requisitos
-- Java 21
-- Apache Ant
+- Java 23 (JDK)
+- Apache Ant *(opcional, también se incluye `run.bat`)*
 
 ### Archivos de datos (descarga manual)
 
@@ -66,12 +66,18 @@ datos/PADRON.txt      ← descargar del TSE manualmente
 datos/distelec.txt    ← ya incluido en el repo
 ```
 
-### Comandos
+### Opción 1 — Script BAT (sin Ant)
+
+Doble clic o desde CMD en la carpeta del proyecto:
+
+```cmd
+run.bat          ← compila, empaqueta y lanza los servidores
+test.bat         ← compila y ejecuta las 51 pruebas automatizadas
+```
+
+### Opción 2 — Apache Ant
 
 ```bash
-# Limpiar archivos compilados
-ant clean
-
 # Solo compilar
 ant compile
 
@@ -268,3 +274,41 @@ POST http://localhost:8080/padron/101053316
 ```json
 { "error": "Método no permitido. Solo se admite GET.", "codigo": 405 }
 ```
+
+---
+
+## Pruebas automatizadas
+
+```cmd
+test.bat
+```
+
+Salida esperada:
+```
+=== SUITE DE PRUEBAS AUTOMATIZADAS — Padrón Electoral ===
+  [PASS] parseo válido JSON – cédula
+  ... (51 pruebas)
+Total: 51  |  Pasados: 51  |  Fallidos: 0
+```
+
+---
+
+## Evidencia de pruebas
+
+### TCP — Consulta JSON exitosa
+![TCP JSON](evidencia/tcp_json.png)
+
+### TCP — Consulta XML exitosa
+![TCP XML](evidencia/tcp_xml.png)
+
+### TCP — Formato inválido (error 400)
+![TCP Error](evidencia/tcp_error.png)
+
+### HTTP — Consulta JSON
+![HTTP JSON](evidencia/http_json.png)
+
+### HTTP — Consulta XML
+![HTTP XML](evidencia/http_xml.png)
+
+### HTTP — Cédula no encontrada (404)
+![HTTP 404](evidencia/http_404.png)

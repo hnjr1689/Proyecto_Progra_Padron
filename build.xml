@@ -10,7 +10,7 @@
     <property name="jar.file"     value="${jar.dir}/PadronElectoral.jar"/>
     <property name="main.class"   value="padron.Main"/>
     <property name="encoding"     value="UTF-8"/>
-    <property name="java.release" value="21"/>
+    <property name="java.release" value="23"/>
 
     <!-- Classpath -->
     <path id="classpath">
@@ -62,6 +62,36 @@
               fork="true"
               failonerror="true">
             <jvmarg value="--enable-preview"/>
+        </java>
+    </target>
+
+    <!-- Target: test-compile -->
+    <target name="test-compile" depends="compile" description="Compilar clases de prueba">
+        <mkdir dir="${build.dir}/test-classes"/>
+        <javac srcdir="test"
+               destdir="${build.dir}/test-classes"
+               encoding="${encoding}"
+               includeantruntime="false"
+               release="${java.release}"
+               fork="true">
+            <compilerarg value="--enable-preview"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+        </javac>
+        <echo message="Compilacion de pruebas completada."/>
+    </target>
+
+    <!-- Target: test -->
+    <target name="test" depends="test-compile" description="Ejecutar pruebas automatizadas">
+        <java classname="padron.test.TestRunner"
+              fork="true"
+              failonerror="true">
+            <jvmarg value="--enable-preview"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+                <pathelement location="${build.dir}/test-classes"/>
+            </classpath>
         </java>
     </target>
 
