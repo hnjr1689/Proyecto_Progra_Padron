@@ -16,36 +16,54 @@
 
 ```
 Proyecto_Progra_Padron/
-├── build.xml
+├── README.md
+├── INFORME_TECNICO.md          ← arquitectura, decisiones y problemas
+├── build.xml                   ← compilación con Ant
+├── run.bat                     ← compilar y lanzar servidor (sin Ant)
+├── test.bat                    ← ejecutar las 51 pruebas automatizadas
 ├── datos/
-│   ├── distelec.txt        ← incluido en el repo
-│   └── PADRON.txt          ← descargar del TSE manualmente
-├── lib/
-├── src/
-│   └── padron/
-│       ├── Main.java
-│       ├── entidades/
-│       │   ├── Persona.java
-│       │   └── Direccion.java
-│       ├── dto/
-│       │   ├── FormatoSalida.java
-│       │   ├── SolicitudPadron.java
-│       │   └── RespuestaPadron.java
-│       ├── datos/
-│       │   ├── RepositorioDistelec.java
-│       │   └── RepositorioPadron.java
-│       ├── logica/
-│       │   └── ServicioPadron.java
-│       ├── presentacion/
-│       │   ├── tcp/
-│       │   │   ├── ServidorTCP.java
-│       │   │   └── ManejadorCliente.java
-│       │   └── http/
-│       │       ├── ServidorHTTP.java
-│       │       └── ManejadorHTTP.java
-│       └── util/
-│           └── Serializador.java
-└── README.md
+│   ├── distelec.txt            ← incluido en el repo
+│   └── PADRON.txt              ← descargar del TSE manualmente
+├── evidencia/                  ← capturas de pruebas TCP/HTTP
+├── src/padron/
+│   ├── Main.java
+│   ├── entidades/
+│   │   ├── Persona.java
+│   │   └── Direccion.java
+│   ├── dto/
+│   │   ├── FormatoSalida.java
+│   │   ├── SolicitudPadron.java
+│   │   └── RespuestaPadron.java
+│   ├── datos/
+│   │   ├── RepositorioDistelec.java
+│   │   └── RepositorioPadron.java
+│   ├── logica/
+│   │   └── ServicioPadron.java
+│   ├── presentacion/
+│   │   ├── tcp/
+│   │   │   ├── ServidorTCP.java
+│   │   │   └── ManejadorCliente.java
+│   │   └── http/
+│   │       ├── ServidorHTTP.java
+│   │       └── ManejadorHTTP.java
+│   └── util/
+│       └── Serializador.java
+├── test/padron/test/           ← pruebas automatizadas (51 casos)
+│   ├── TestRunner.java
+│   ├── SolicitudPadronTest.java
+│   ├── SerializadorTest.java
+│   ├── ServicioPadronTest.java
+│   └── RepositorioDistelecTest.java
+└── ClientePadron/              ← Proyecto 2: cliente GUI Swing
+    ├── README.md
+    ├── run.bat
+    └── src/cliente/
+        ├── Main.java
+        ├── tcp/ClienteTCP.java
+        ├── http/ClienteHTTP.java
+        ├── dto/RespuestaPadron.java
+        ├── util/ParserRespuesta.java
+        └── presentacion/VentanaPrincipal.java
 ```
 
 ---
